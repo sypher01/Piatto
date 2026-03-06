@@ -18,6 +18,8 @@ services:
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
     environment:
       POSTGRES_DB:       ${POSTGRES_DB:-hfresh_recipes}
       POSTGRES_USER:     ${POSTGRES_USER:-hfresh_user}
