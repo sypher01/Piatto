@@ -278,13 +278,42 @@ def set_config():
     return jsonify({"ok": True})
 
 
+def _ensure_tables(conn) -> None:
+    """
+    Apply additive schema migrations for tables introduced after the initial
+    schema was created.  All statements use IF NOT EXISTS so they are fully
+    idempotent — safe to run on every startup regardless of DB age.
+    """
+    with conn.cursor() as cur:
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS scraper_runs (
+                id              SERIAL PRIMARY KEY,
+                job_type        TEXT NOT NULL DEFAULT 'scraper',
+                status          TEXT NOT NULL DEFAULT 'running',
+                started_at      TIMESTAMPTZ DEFAULT NOW(),
+                finished_at     TIMESTAMPTZ,
+                log             TEXT NOT NULL DEFAULT ''
+            )
+        """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS app_config (
+                key         TEXT PRIMARY KEY,
+                value       TEXT NOT NULL,
+                updated_at  TIMESTAMPTZ DEFAULT NOW()
+            )
+        """)
+    conn.commit()
+    log.info("Schema migration OK (scraper_runs, app_config)")
+
+
 if __name__ == "__main__":
-    # Wait for DB to be ready before serving
+    # Wait for DB to be ready, then ensure new tables exist
     for attempt in range(30):
         try:
             conn = get_conn()
+            _ensure_tables(conn)
             conn.close()
-            log.info("DB connection OK — starting Flask API on :5001")
+            log.info("DB ready — starting Flask API on :5001")
             break
         except Exception as e:
             log.info(f"Waiting for DB ({attempt + 1}/30): {e}")
