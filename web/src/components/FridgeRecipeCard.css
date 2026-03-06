@@ -1,0 +1,98 @@
+/* Clickable match badge button */
+.fridge-match-badge {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    text-align: left;
+    margin-bottom: 0.75rem;
+    font-family: inherit;
+    position: relative;
+    z-index: 2;
+}
+
+.fridge-match-badge-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.25rem;
+    color: var(--match-color, var(--primary));
+    margin-top: 0.25rem;
+}
+
+.fridge-match-badge-row .match-text {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--match-color, var(--primary));
+}
+
+.fridge-match-badge-row svg {
+    flex-shrink: 0;
+    opacity: 0.7;
+    color: var(--match-color, var(--primary));
+}
+
+/* Missing ingredients dropdown */
+.fridge-missing-dropdown {
+    background: var(--surface-hover);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    position: relative;
+    z-index: 2;
+}
+
+.fridge-missing-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.fridge-missing-empty {
+    font-size: 0.8rem;
+    color: var(--secondary);
+    font-weight: 500;
+}
+
+.fridge-missing-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+}
+
+.fridge-missing-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 500;
+    font-family: inherit;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--foreground);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.fridge-missing-chip:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(255, 107, 107, 0.06);
+}
+
+.fridge-missing-chip.excluded {
+    border-color: var(--primary);
+    background: rgba(255, 107, 107, 0.12);
+    color: var(--primary);
+    text-decoration: line-through;
+    opacity: 0.8;
+}
+
+.fridge-missing-chip.excluded:hover {
+    opacity: 1;
+    text-decoration: none;
+}

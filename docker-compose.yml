@@ -1,0 +1,87 @@
+# Piatto — Docker Compose
+# ========================
+# Avvia PostgreSQL + l'app web Next.js.
+# Scraper e normalizer si eseguono come comandi one-shot.
+#
+# Primo avvio:
+#   cp .env.example .env   # imposta almeno POSTGRES_PASSWORD
+#   docker compose up -d
+#
+# Esegui lo scraper (prima volta o per aggiornare):
+#   docker compose run --rm --profile tools scraper
+#
+# Esegui il normalizer LLM (richiede un'API LLM attiva):
+#   docker compose run --rm --profile tools normalizer
+
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       ${POSTGRES_DB:-hfresh_recipes}
+      POSTGRES_USER:     ${POSTGRES_USER:-hfresh_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./scraper/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hfresh_user} -d ${POSTGRES_DB:-hfresh_recipes}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build:
+      context: ./web
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-3006}:3006"
+    environment:
+      DB_HOST:        postgres
+      DB_PORT:        5432
+      DB_NAME:        ${POSTGRES_DB:-hfresh_recipes}
+      DB_USER:        ${POSTGRES_USER:-hfresh_user}
+      DB_PASSWORD:    ${POSTGRES_PASSWORD}
+      NEXT_BASE_PATH: ""
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  scraper:
+    build:
+      context: ./scraper
+    environment:
+      DB_HOST:     postgres
+      DB_PORT:     5432
+      DB_NAME:     ${POSTGRES_DB:-hfresh_recipes}
+      DB_USER:     ${POSTGRES_USER:-hfresh_user}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - tools
+
+  normalizer:
+    build:
+      context: ./scraper
+    command: python normalize_ingredients.py --new-only
+    environment:
+      DB_HOST:      postgres
+      DB_PORT:      5432
+      DB_NAME:      ${POSTGRES_DB:-hfresh_recipes}
+      DB_USER:      ${POSTGRES_USER:-hfresh_user}
+      DB_PASSWORD:  ${POSTGRES_PASSWORD}
+      LLM_BASE_URL: ${LLM_BASE_URL:-http://host.docker.internal:1234/v1}
+      LLM_MODEL:    ${LLM_MODEL:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - tools
+
+volumes:
+  postgres_data:

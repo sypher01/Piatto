@@ -1,0 +1,70 @@
+/* Icon variant — small button on recipe cards */
+.add-to-cart-btn {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-full);
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+}
+
+.add-to-cart-btn:hover {
+    border-color: var(--secondary);
+    color: var(--secondary);
+    background: rgba(78, 205, 196, 0.08);
+    transform: scale(1.1);
+}
+
+.add-to-cart-btn.in-cart {
+    background: var(--secondary);
+    border-color: var(--secondary);
+    color: white;
+}
+
+.add-to-cart-btn.in-cart:hover {
+    background: var(--secondary-hover);
+    border-color: var(--secondary-hover);
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Full variant — button on recipe detail page */
+.add-to-cart-btn-full {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    font-size: 0.95rem;
+    font-family: inherit;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    backdrop-filter: blur(8px);
+    transition: all var(--transition-fast);
+    cursor: pointer;
+}
+
+.add-to-cart-btn-full:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.7);
+    transform: translateY(-2px);
+}
+
+.add-to-cart-btn-full.in-cart {
+    background: var(--secondary);
+    border-color: var(--secondary);
+}
+
+.add-to-cart-btn-full.in-cart:hover {
+    background: var(--secondary-hover);
+    border-color: var(--secondary-hover);
+}
