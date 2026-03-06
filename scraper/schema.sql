@@ -1,29 +1,9 @@
 -- =============================================================
--- hfresh_recipes — PostgreSQL Setup
--- Run this as superuser (e.g. psql -U postgres)
--- Target host: 192.168.1.210
+-- hfresh_recipes — PostgreSQL Schema
+-- Applied automatically by the postgres Docker container on first start.
+-- The database and user are created via docker-compose env vars
+-- (POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD).
 -- =============================================================
-
--- 1. Create dedicated user
-CREATE USER hfresh_user WITH PASSWORD 'Hfr3sh!Secure2026';
-
--- 2. Create database owned by that user
-CREATE DATABASE hfresh_recipes
-    OWNER = hfresh_user
-    ENCODING = 'UTF8'
-    LC_COLLATE = 'en_US.UTF-8'
-    LC_CTYPE  = 'en_US.UTF-8'
-    TEMPLATE = template0;
-
--- 3. Grant all privileges
-GRANT ALL PRIVILEGES ON DATABASE hfresh_recipes TO hfresh_user;
-
--- =============================================================
--- Connect to the new DB before running the schema below:
---   \c hfresh_recipes
--- =============================================================
-
--- 4. Schema
 
 -- Categories / tags
 CREATE TABLE IF NOT EXISTS categories (
