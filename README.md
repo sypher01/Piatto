@@ -18,6 +18,7 @@ Sfoglia per cucina, cerca per quello che hai in frigo (**Svuota Frigo**), aggiun
 ├── scraper/                    pipeline dati (Python)
 │   ├── scraper.py              scarica le ricette da hfresh.info → PostgreSQL
 │   ├── normalize_ingredients.py normalizza i nomi ingredienti con un LLM
+│   ├── scraper_api.py          API Flask (avvia scraper/normalizer dalla UI)
 │   ├── schema.sql              schema del database (applicato automaticamente)
 │   ├── Dockerfile
 │   └── requirements.txt
@@ -75,9 +76,26 @@ Il sito sarà vuoto finché non esegui lo scraper.
 
 ---
 
+## Impostazioni (`/impostazioni`)
+
+La pagina Impostazioni è accessibile dalla navbar e permette di:
+
+| Tab | Contenuto |
+|-----|-----------|
+| **Statistiche** | Numero ricette, ingredienti, mapping LLM, dimensione DB, ultima sincronizzazione |
+| **Scraper** | Avvia scraper o normalizer dalla UI con log in tempo reale e cronologia |
+| **LLM** | Configura URL e modello dell'API LLM, testa la connessione |
+| **Diagnostica** | Test connessione a database, scraper API e LLM |
+
+---
+
 ## Popolamento del database (scraping)
 
 ### Prima esecuzione — circa 30–60 minuti
+
+**Opzione A — dalla UI:** apri `/impostazioni` → tab Scraper → **Avvia Scraper** e segui il log in tempo reale.
+
+**Opzione B — da terminale:**
 
 ```bash
 docker compose run --rm --profile tools scraper
@@ -127,6 +145,10 @@ LLM_MODEL=gpt-4o-mini
 
 ### Esegui la normalizzazione
 
+**Opzione A — dalla UI:** apri `/impostazioni` → tab Scraper → **Avvia Normalizer** (usa la config LLM salvata nel tab LLM).
+
+**Opzione B — da terminale:**
+
 ```bash
 docker compose run --rm --profile tools normalizer
 ```
@@ -166,7 +188,8 @@ docker compose run --rm --profile tools normalizer
 | `POSTGRES_PASSWORD` | *obbligatoria* | Password PostgreSQL |
 | `POSTGRES_DB` | `hfresh_recipes` | Nome del database |
 | `POSTGRES_USER` | `hfresh_user` | Utente del database |
-| `WEB_PORT` | `3006` | Porta host per l'app web |
+| `POSTGRES_PORT` | `5432` | Porta esposta di PostgreSQL |
+| `WEB_PORT` | `3006` | Porta esposta dell'app web |
 | `LLM_BASE_URL` | `http://localhost:1234/v1` | URL base API LLM |
 | `LLM_MODEL` | *auto-rilevato* | Nome del modello LLM |
 
