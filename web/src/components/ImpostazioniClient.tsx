@@ -3,6 +3,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import './ImpostazioniClient.css';
 
+const BASE = (process.env.NEXT_PUBLIC_BASE_PATH ?? '').replace(/\/$/, '');
+
 // ── Types ──────────────────────────────────────────────────────────────────
 
 interface Stats {
@@ -56,7 +58,7 @@ function StatsTab() {
 
     const load = useCallback(async () => {
         try {
-            const res = await fetch('/api/impostazioni/stats');
+            const res = await fetch(`${BASE}/api/impostazioni/stats`);
             if (!res.ok) throw new Error(await res.text());
             setStats(await res.json());
             setError('');
@@ -116,7 +118,7 @@ function ScraperTab() {
 
     const fetchRuns = useCallback(async () => {
         try {
-            const res = await fetch('/api/impostazioni/scraper');
+            const res = await fetch(`${BASE}/api/impostazioni/scraper`);
             if (!res.ok) throw new Error(await res.text());
             const data: ScraperRun[] = await res.json();
             setRuns(data);
@@ -145,7 +147,7 @@ function ScraperTab() {
         setBusy(job);
         setError('');
         try {
-            const res = await fetch('/api/impostazioni/scraper', {
+            const res = await fetch(`${BASE}/api/impostazioni/scraper`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ job }),
@@ -251,7 +253,7 @@ function LlmTab() {
     const [testResult, setTestResult] = useState<{ ok: boolean; error?: string; models?: string[] } | null>(null);
 
     useEffect(() => {
-        fetch('/api/impostazioni/llm-config')
+        fetch(`${BASE}/api/impostazioni/llm-config`)
             .then(r => r.json())
             .then(d => setConfig({ llm_base_url: d.llm_base_url ?? '', llm_model: d.llm_model ?? '' }))
             .catch(e => setError(e.message));
@@ -260,7 +262,7 @@ function LlmTab() {
     const save = async () => {
         setError(''); setSaved(false);
         try {
-            const res = await fetch('/api/impostazioni/llm-config', {
+            const res = await fetch(`${BASE}/api/impostazioni/llm-config`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(config),
@@ -276,7 +278,7 @@ function LlmTab() {
     const testLlm = async () => {
         setTesting(true); setTestResult(null);
         try {
-            const res = await fetch('/api/impostazioni/diagnostics', {
+            const res = await fetch(`${BASE}/api/impostazioni/diagnostics`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ check: 'llm', llm_base_url: config.llm_base_url }),
@@ -344,7 +346,7 @@ function DiagnosticsTab() {
     const run = async (check: string) => {
         setResults(r => ({ ...r, [check]: 'pending' }));
         try {
-            const res = await fetch('/api/impostazioni/diagnostics', {
+            const res = await fetch(`${BASE}/api/impostazioni/diagnostics`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ check }),
