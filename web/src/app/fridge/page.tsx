@@ -2,6 +2,8 @@ import React from 'react';
 import FridgeSaver from '../../components/FridgeSaver';
 import { getAllCanonicalIngredients } from '../../lib/queries';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
     title: 'Svuota Frigo | Piatto',
     description: 'Trova ricette in base agli ingredienti che hai in frigo.',
