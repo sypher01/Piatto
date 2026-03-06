@@ -1,16 +1,17 @@
 # Piatto — Docker Compose
 # ========================
-# Avvia PostgreSQL + l'app web Next.js.
-# Scraper e normalizer si eseguono come comandi one-shot.
+# Avvia PostgreSQL + l'app web Next.js + scraper_api (sempre attivo).
+# Scraper e normalizer one-shot rimangono disponibili via --profile tools,
+# ma ora possono essere avviati anche dalla pagina Impostazioni nel browser.
 #
 # Primo avvio:
 #   cp .env.example .env   # imposta almeno POSTGRES_PASSWORD
 #   docker compose up -d
 #
-# Esegui lo scraper (prima volta o per aggiornare):
+# Esegui lo scraper manualmente (alternativa alla UI):
 #   docker compose run --rm --profile tools scraper
 #
-# Esegui il normalizer LLM (richiede un'API LLM attiva):
+# Esegui il normalizer LLM (alternativa alla UI):
 #   docker compose run --rm --profile tools normalizer
 
 services:
@@ -33,6 +34,26 @@ services:
       timeout: 5s
       retries: 10
 
+  # Servizio sempre attivo che espone /run/scraper, /run/normalizer, /status, /config, /llm/test
+  scraper_api:
+    build:
+      context: ./scraper
+    command: python scraper_api.py
+    restart: unless-stopped
+    environment:
+      DB_HOST:      postgres
+      DB_PORT:      5432
+      DB_NAME:      ${POSTGRES_DB:-hfresh_recipes}
+      DB_USER:      ${POSTGRES_USER:-hfresh_user}
+      DB_PASSWORD:  ${POSTGRES_PASSWORD}
+      LLM_BASE_URL: ${LLM_BASE_URL:-http://host.docker.internal:1234/v1}
+      LLM_MODEL:    ${LLM_MODEL:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   web:
     build:
       context: ./web
@@ -40,15 +61,18 @@ services:
     ports:
       - "${WEB_PORT:-3006}:3006"
     environment:
-      DB_HOST:        postgres
-      DB_PORT:        5432
-      DB_NAME:        ${POSTGRES_DB:-hfresh_recipes}
-      DB_USER:        ${POSTGRES_USER:-hfresh_user}
-      DB_PASSWORD:    ${POSTGRES_PASSWORD}
-      NEXT_BASE_PATH: ""
+      DB_HOST:            postgres
+      DB_PORT:            5432
+      DB_NAME:            ${POSTGRES_DB:-hfresh_recipes}
+      DB_USER:            ${POSTGRES_USER:-hfresh_user}
+      DB_PASSWORD:        ${POSTGRES_PASSWORD}
+      NEXT_BASE_PATH:     ""
+      SCRAPER_API_URL:    http://scraper_api:5001
     depends_on:
       postgres:
         condition: service_healthy
+      scraper_api:
+        condition: service_started
 
   scraper:
     build:

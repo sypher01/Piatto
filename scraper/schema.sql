@@ -113,6 +113,23 @@ CREATE TABLE IF NOT EXISTS ingredient_mappings (
     created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Scraper / normalizer run history (for the Impostazioni UI)
+CREATE TABLE IF NOT EXISTS scraper_runs (
+    id              SERIAL PRIMARY KEY,
+    job_type        TEXT NOT NULL DEFAULT 'scraper',  -- 'scraper' | 'normalizer'
+    status          TEXT NOT NULL DEFAULT 'running',  -- 'running' | 'done' | 'error'
+    started_at      TIMESTAMPTZ DEFAULT NOW(),
+    finished_at     TIMESTAMPTZ,
+    log             TEXT NOT NULL DEFAULT ''
+);
+
+-- Application configuration (LLM endpoint, model, etc.)
+CREATE TABLE IF NOT EXISTS app_config (
+    key         TEXT PRIMARY KEY,
+    value       TEXT NOT NULL,
+    updated_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Handy indexes
 CREATE INDEX ON recipes (slug);
 CREATE INDEX ON recipes (cuisine_id);

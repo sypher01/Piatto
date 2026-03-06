@@ -5,8 +5,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY scraper.py normalize_ingredients.py ./
+COPY scraper.py normalize_ingredients.py scraper_api.py ./
 
 # Default command runs the scraper.
-# Override with: docker compose run scraper python normalize_ingredients.py
+# The scraper_api service overrides this CMD to: python scraper_api.py
 CMD ["python", "scraper.py"]

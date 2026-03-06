@@ -24,6 +24,7 @@ export default function RootLayout({
               <div className="nav-links">
                 <Link href="/">Ricette</Link>
                 <Link href="/fridge" className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}>Svuota Frigo</Link>
+                <Link href="/impostazioni" style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Impostazioni</Link>
                 <Link href="/cart" className="cart-nav-link" title="Lista della spesa">
                   <ShoppingCart size={20} />
                 </Link>
